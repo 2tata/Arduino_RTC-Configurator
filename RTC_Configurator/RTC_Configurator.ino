@@ -189,7 +189,7 @@ void loop(){
     }
    else
     {
-      Serial.println("Fehler bitte überprüfen sie die verkabelung!");
+      Serial.println("Fehler bitte ueberpruefen sie die verkabelung!");
     }
 
   }
