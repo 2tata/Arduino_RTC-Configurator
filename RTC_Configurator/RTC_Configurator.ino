@@ -153,45 +153,65 @@ void loop(){
 
     //RTC Auslesen
     Serial.println("i2c.request...");
-
-     //Neu setzen der Register Startadresse 
-    Wire.beginTransmission(ADD);
-    Wire.write(STARTADD);
-    Wire.endTransmission();
-
-    Wire.requestFrom(ADD, 7);
-
-    rSEC = BCD_decode(Wire.read());
-    rMIN = BCD_decode(Wire.read());
-    rHOUR = BCD_decode(Wire.read() & 0b111111); //24 Stunden Zeit
-    rWEEKDAY = BCD_decode(Wire.read()); //0-6 -> Sonntag - Samstag
-    rMONTHDAY = BCD_decode(Wire.read());
-    rMONTH = BCD_decode(Wire.read());
-    rYEAR = BCD_decode(Wire.read());
-    
-    
-   if((SEC+MIN+HOUR+WEEKDAY+MONTHDAY+MONTH+YEAR)==(rSEC+rMIN+rHOUR+rWEEKDAY+rMONTHDAY+rMONTH+rYEAR))
+    byte auslesen = 0;
+    while (true)
     {
-      Serial.println("Programmierunge der RTC wahr erfolgreich!");
-      //Ausgabe:   Datum:DD/MM/JJ Zeit:HH:MM:SS
-    Serial.print("Datum: ");
-    Serial.print(rMONTHDAY);
-    Serial.print("/");
-    Serial.print(rMONTH);
-    Serial.print("/");
-    Serial.print(rYEAR);
-    Serial.print(" Zeit: ");
-    Serial.print(rHOUR);
-    Serial.print(":");
-    Serial.print(rMIN);
-    Serial.print(":");
-    Serial.println(rSEC);
-    }
-   else
-    {
-      Serial.println("Fehler bitte ueberpruefen sie die verkabelung!");
-    }
+      //Neu setzen der Register Startadresse 
+      Wire.beginTransmission(ADD);
+      Wire.write(STARTADD);
+      Wire.endTransmission();
 
+      Wire.requestFrom(ADD, 7);
+
+      rSEC = BCD_decode(Wire.read());
+      rMIN = BCD_decode(Wire.read());
+      rHOUR = BCD_decode(Wire.read() & 0b111111); //24 Stunden Zeit
+      rWEEKDAY = BCD_decode(Wire.read()); //0-6 -> Sonntag - Samstag
+      rMONTHDAY = BCD_decode(Wire.read());
+      rMONTH = BCD_decode(Wire.read());
+      rYEAR = BCD_decode(Wire.read());
+      if (auslesen == 0)
+      {
+        if((SEC+MIN+HOUR+WEEKDAY+MONTHDAY+MONTH+YEAR)==(rSEC+rMIN+rHOUR+rWEEKDAY+rMONTHDAY+rMONTH+rYEAR))
+        {
+          Serial.println("Programmierunge der RTC wahr erfolgreich!");
+          //Ausgabe:   Datum:DD/MM/JJ Zeit:HH:MM:SS
+          Serial.print("Datum: ");
+          Serial.print(rMONTHDAY);
+          Serial.print("/");
+          Serial.print(rMONTH);
+          Serial.print("/");
+          Serial.print(rYEAR);
+          Serial.print(" Zeit: ");
+          Serial.print(rHOUR);
+          Serial.print(":");
+          Serial.print(rMIN);
+          Serial.print(":");
+          Serial.println(rSEC);
+          auslesen = 1;
+        }
+        else
+        {
+          Serial.println("Fehler bitte ueberpruefen sie die verkabelung!");
+          break;
+        }
+      }
+      else
+      {
+         Serial.print("Datum: ");
+          Serial.print(rMONTHDAY);
+          Serial.print("/");
+          Serial.print(rMONTH);
+          Serial.print("/");
+          Serial.print(rYEAR);
+          Serial.print(" Zeit: ");
+          Serial.print(rHOUR);
+          Serial.print(":");
+          Serial.print(rMIN);
+          Serial.print(":");
+          Serial.println(rSEC);
+      }
+    }
   }
 }
 
@@ -206,3 +226,5 @@ byte BCD_decode(byte X)
 { 
   return ((X/16*10)+(X%16));
 }
+
+
