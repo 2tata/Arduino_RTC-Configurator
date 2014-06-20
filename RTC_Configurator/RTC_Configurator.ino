@@ -39,17 +39,18 @@ void setup(){
   Serial.println(" ");
   Serial.println("    z.B. 13061802150832 =           PIN belegung");
   Serial.println("    +--------------------+        +-----------+");
-  Serial.println("    |Jahr= 13            |        |GND=  A3   |");
-  Serial.println("    |Monat= 06           |        |VCC=  A2   |");
-  Serial.println("    |Monatstage= 18      |        |SDa=  A4   |");
-  Serial.println("    |Wochentage= 02      |        |SCl=  A5   |");
-  Serial.println("    |Stunde= 15          |        |CL=   A1   |");
+  Serial.println("    |Jahr= 13            |        |VCC=  A2   |");
+  Serial.println("    |Monat= 06           |        |CL=   A1   |");
+  Serial.println("    |Monatstage= 18      |        |SCl=  A5   |");
+  Serial.println("    |Wochentage= 02      |        |SDa=  A4   |");
+  Serial.println("    |Stunde= 15          |        |GND=  A3   |");
   Serial.println("    |Minute= 08          |        +-----------+");
   Serial.println("    |Sekunde= 32         |");
   Serial.println("    +--------------------+");
   Serial.println(" ");
   Serial.println("    Wenn die Eingabe Korrekt war wird ein ok wider gegeben!");
   Serial.println(" ");
+  Serial.println("    Gib 'time' ein um die aktuelle zeit der RTC auszulesen.");
 }
 
 void loop(){
@@ -210,6 +211,48 @@ void loop(){
           Serial.print(rMIN);
           Serial.print(":");
           Serial.println(rSEC);
+      }
+    }
+  }
+  else if(Serial.available()==4)
+  {
+    char time[8] = "";
+    time[0] = Serial.read();
+    time[1] = Serial.read();
+    time[2] = Serial.read();
+    time[3] = Serial.read();
+    if (time[0] == 't' && time[1] == 'i' && time[2] == 'm' && time[3] == 'e')
+    {
+      byte auslesen = 0;
+    while (true)
+    {
+      //Neu setzen der Register Startadresse 
+      Wire.beginTransmission(ADD);
+      Wire.write(STARTADD);
+      Wire.endTransmission();
+
+      Wire.requestFrom(ADD, 7);
+
+      rSEC = BCD_decode(Wire.read());
+      rMIN = BCD_decode(Wire.read());
+      rHOUR = BCD_decode(Wire.read() & 0b111111); //24 Stunden Zeit
+      rWEEKDAY = BCD_decode(Wire.read()); //0-6 -> Sonntag - Samstag
+      rMONTHDAY = BCD_decode(Wire.read());
+      rMONTH = BCD_decode(Wire.read());
+      rYEAR = BCD_decode(Wire.read());
+      Serial.print("Datum: ");
+          Serial.print(rMONTHDAY);
+          Serial.print("/");
+          Serial.print(rMONTH);
+          Serial.print("/");
+          Serial.print(rYEAR);
+          Serial.print(" Zeit: ");
+          Serial.print(rHOUR);
+          Serial.print(":");
+          Serial.print(rMIN);
+          Serial.print(":");
+          Serial.println(rSEC);
+      
       }
     }
   }
