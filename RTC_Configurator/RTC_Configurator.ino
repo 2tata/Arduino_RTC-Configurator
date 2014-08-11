@@ -1,6 +1,6 @@
 /*
  #***********************************************
- #  Dateiname:  ........  RTC-Configurator.ino  *  
+ #  Dateiname:  ........  RTC-Configurator.ino  *
  #  Autor:  ..................  Jan-Tarek Butt  *
  #  Sprache:  .............................  C  *
  #  Dialekt:  .......................  Arduino  *
@@ -9,23 +9,23 @@
  #***********************************************
  */
 
-//bibeliothek einbriden um I2c zu sprechen 
+//bibeliothek einbriden um I2c zu sprechen
 #include "Wire.h"
 
 //Pin Belegung Definieren
 #define CL A1
 #define VCC A2
-#define GND A3    
+#define GND A3
 
 //adresse der RTC im I2c Bus
 #define ADD 0x68
 
 //Start adresse auf der RTC
-#define STARTADD 0x00 
+#define STARTADD 0x00
 
 void setup(){
   //Pins Initzialisiren
-  pinMode(GND,OUTPUT);    
+  pinMode(GND,OUTPUT);
   pinMode(VCC,OUTPUT);
   pinMode(CL,INPUT);
   digitalWrite(GND,0);
@@ -58,11 +58,10 @@ void loop(){
   byte SEC = 0, MIN = 0, HOUR = 0, WEEKDAY = 0, MONTHDAY = 0, MONTH = 0, YEAR = 0;
   byte rSEC = 0, rMIN = 0, rHOUR = 0, rWEEKDAY = 0, rMONTHDAY = 0, rMONTH = 0, rYEAR = 0;
 
-
+  delay(10);
   //Wird ausgefürt wenn der Arduino Seriel 14 zeichen empfängt.
   if(Serial.available()==14)
   {
-
     Serial.println("OK!");
     Serial.println(" ");
 
@@ -116,7 +115,7 @@ void loop(){
     Serial.println("i2c Transmission...");
 
     Wire.beginTransmission(ADD);
-    Wire.write(STARTADD); 
+    Wire.write(STARTADD);
 
     Wire.write(BCD_encode(SEC));
     Serial.print("Transmission Sec: ");
@@ -147,9 +146,9 @@ void loop(){
     Serial.println(BCD_encode(YEAR));
     Serial.println(" ");
 
-    Wire.write(B00010000);  //SQWE enablen 
+    Wire.write(B00010000);  //SQWE enablen
 
-    Wire.write(STARTADD);  
+    Wire.write(STARTADD);
     Wire.endTransmission();
 
     //RTC Auslesen
@@ -157,7 +156,7 @@ void loop(){
     byte auslesen = 0;
     while (true)
     {
-      //Neu setzen der Register Startadresse 
+      //Neu setzen der Register Startadresse
       Wire.beginTransmission(ADD);
       Wire.write(STARTADD);
       Wire.endTransmission();
@@ -199,7 +198,7 @@ void loop(){
       }
       else
       {
-         Serial.print("Datum: ");
+          Serial.print("Datum: ");
           Serial.print(rMONTHDAY);
           Serial.print("/");
           Serial.print(rMONTH);
@@ -224,35 +223,34 @@ void loop(){
     if (time[0] == 't' && time[1] == 'i' && time[2] == 'm' && time[3] == 'e')
     {
       byte auslesen = 0;
-    while (true)
-    {
-      //Neu setzen der Register Startadresse 
-      Wire.beginTransmission(ADD);
-      Wire.write(STARTADD);
-      Wire.endTransmission();
+      while (true)
+      {
+        //Neu setzen der Register Startadresse
+        Wire.beginTransmission(ADD);
+        Wire.write(STARTADD);
+        Wire.endTransmission();
 
-      Wire.requestFrom(ADD, 7);
+        Wire.requestFrom(ADD, 7);
 
-      rSEC = BCD_decode(Wire.read());
-      rMIN = BCD_decode(Wire.read());
-      rHOUR = BCD_decode(Wire.read() & 0b111111); //24 Stunden Zeit
-      rWEEKDAY = BCD_decode(Wire.read()); //0-6 -> Sonntag - Samstag
-      rMONTHDAY = BCD_decode(Wire.read());
-      rMONTH = BCD_decode(Wire.read());
-      rYEAR = BCD_decode(Wire.read());
-      Serial.print("Datum: ");
-          Serial.print(rMONTHDAY);
-          Serial.print("/");
-          Serial.print(rMONTH);
-          Serial.print("/");
-          Serial.print(rYEAR);
-          Serial.print(" Zeit: ");
-          Serial.print(rHOUR);
-          Serial.print(":");
-          Serial.print(rMIN);
-          Serial.print(":");
-          Serial.println(rSEC);
-      
+        rSEC = BCD_decode(Wire.read());
+        rMIN = BCD_decode(Wire.read());
+        rHOUR = BCD_decode(Wire.read() & 0b111111); //24 Stunden Zeit
+        rWEEKDAY = BCD_decode(Wire.read()); //0-6 -> Sonntag - Samstag
+        rMONTHDAY = BCD_decode(Wire.read());
+        rMONTH = BCD_decode(Wire.read());
+        rYEAR = BCD_decode(Wire.read());
+        Serial.print("Datum: ");
+        Serial.print(rMONTHDAY);
+        Serial.print("/");
+        Serial.print(rMONTH);
+        Serial.print("/");
+        Serial.print(rYEAR);
+        Serial.print(" Zeit: ");
+        Serial.print(rHOUR);
+        Serial.print(":");
+        Serial.print(rMIN);
+        Serial.print(":");
+        Serial.println(rSEC);
       }
     }
   }
